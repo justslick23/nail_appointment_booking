@@ -39,6 +39,6 @@ class HomeController extends Controller
             (object) ['name' => 'Update User Roles', 'due_date' => now()->addDays(5), 'status' => 'Completed']
         ]; // Dummy tasks
 
-        return view('admin.dashboard', compact('userCount', 'appointmentCount', 'totalRevenue', 'notifications', 'tasks'));
+        return view('client.dashboard', compact('userCount', 'appointmentCount', 'totalRevenue', 'notifications', 'tasks'));
     }    }
 
