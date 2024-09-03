@@ -1,5 +1,7 @@
 @extends('layouts.app')
-
+@php
+    use Carbon\Carbon;
+@endphp
 @include('partials.header') <!-- Include Header -->
 @include('partials.sidebar') <!-- Include Sidebar -->
 
@@ -28,8 +30,13 @@
                                 <i class="bi bi-calendar-check"></i>
                             </div>
                             <div class="ps-3">
-                                <h6>August 28, 2024, 10:00 AM</h6> <!-- Dummy appointment date and time -->
-                                <span class="text-muted small pt-2">Service: Manicure</span>
+                                @if ($nextAppointment)
+                                    <h6>{{ Carbon::parse($nextAppointment->appointment_date)->format('d F Y') }}</h6>
+                                    @foreach($nextAppointment->services as $service)
+        <span class="text-muted small pt-2">Service: {{ $service['name'] ?? 'N/A' }}</span><br>
+    @endforeach                                @else
+                                    <h6>No upcoming appointments</h6>
+                                @endif
                             </div>
                         </div>
                     </div>
@@ -46,57 +53,57 @@
                                 <i class="bi bi-clock-history"></i>
                             </div>
                             <div class="ps-3">
-                                <h6>12 Appointments</h6> <!-- Dummy number of appointments -->
-                                <span class="text-muted small pt-2">Last: August 15, 2024</span>
+                                <h6>{{ $recentAppointments->count() }} Appointments</h6>
+                                <br>
+                                <span class="text-muted small pt-2">
+                                    Last: {{ $lastAppointment ? $lastAppointment->appointment_date : 'N/A' }}
+                                </span>
                             </div>
                         </div>
                     </div>
                 </div>
             </div><!-- End Booking History Card -->
 
-           
-
             <!-- Recently Booked Services -->
-            <div class="col-lg-12">
-                <div class="card">
-                    <div class="card-body">
-                        <h5 class="card-title">Recently Booked Services <span>| This Year</span></h5>
-                        <!-- Table with recent bookings -->
-                        <div class="table-responsive">
-                            <table class="table table-hover">
-                                <thead>
-                                    <tr>
-                                        <th scope="col">Date</th>
-                                        <th scope="col">Service</th>
-                                        <th scope="col">Technician</th>
-                                        <th scope="col">Status</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    <tr>
-                                        <td>August 15, 2024</td>
-                                        <td>Pedicure</td>
-                                        <td>Emily Johnson</td>
-                                        <td><span class="badge bg-success">Completed</span></td>
-                                    </tr>
-                                    <tr>
-                                        <td>July 20, 2024</td>
-                                        <td>Gel Nails</td>
-                                        <td>Jessica Lee</td>
-                                        <td><span class="badge bg-success">Completed</span></td>
-                                    </tr>
-                                    <tr>
-                                        <td>June 18, 2024</td>
-                                        <td>Manicure</td>
-                                        <td>Olivia White</td>
-                                        <td><span class="badge bg-success">Completed</span></td>
-                                    </tr>
-                                </tbody>
-                            </table>
-                        </div>
-                    </div>
+       <!-- Recently Booked Services -->
+<div class="col-lg-12">
+    <div class="card">
+        <div class="card-body">
+            <h5 class="card-title">Recently Booked Services <span>| This Year</span></h5>
+            <!-- Check if there are recent appointments -->
+            @if($recentAppointments->isEmpty())
+                <p class="text-muted">No recent appointments</p>
+            @else
+                <!-- Table with recent bookings -->
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th scope="col">Date</th>
+                                <th scope="col">Service</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach($recentAppointments as $appointment)
+                                <tr>
+                                    <td>{{ Carbon::parse($appointment->appointment_date)->format('d F Y') }}</td>
+<!-- Adjusted code to display service names -->
+<td>
+    @forelse ($appointment->services as $service)
+        {{ $service->name }}@if (!$loop->last), @endif
+    @empty
+        N/A
+    @endforelse
+</td>
+                                </tr>
+                            @endforeach
+                        </tbody>
+                    </table>
                 </div>
-            </div><!-- End Recently Booked Services -->
+            @endif
+        </div>
+    </div>
+</div><!-- End Recently Booked Services -->
 
         </div>
     </section>

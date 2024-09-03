@@ -75,6 +75,19 @@
                                 </div>
 
                                 <div class="col-12">
+    <label for="user_type" class="form-label">User Type</label>
+    <select name="user_type" class="form-select @error('user_type') is-invalid @enderror" id="user_type" required>
+        <option value="" disabled selected>Select User Type</option>
+        <option value="admin" {{ old('user_type') == 'admin' ? 'selected' : '' }}>Admin</option>
+        <option value="customer" {{ old('user_type') == 'customer' ? 'selected' : '' }}>Customer</option>
+    </select>
+    @error('user_type')
+        <div class="invalid-feedback">{{ $message }}</div>
+    @enderror
+</div>
+
+
+                                <div class="col-12">
                                     <div class="form-check">
                                         <input class="form-check-input" type="checkbox" name="terms" id="acceptTerms" required>
                                         <label class="form-check-label" for="acceptTerms">I agree and accept the <a href="#">terms and conditions</a></label>

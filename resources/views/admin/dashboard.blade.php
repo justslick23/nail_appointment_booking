@@ -1,5 +1,7 @@
 @extends('layouts.app')
-
+@php
+    use Carbon\Carbon;
+@endphp
 @include('partials.header') <!-- Include Header -->
 @include('partials.sidebar') <!-- Include Sidebar -->
 
@@ -19,7 +21,7 @@
         <div class="row">
 
             <!-- Total Clients Card -->
-            <div class="col-lg-3 col-md-6">
+            <div class="col-lg-4 col-md-6">
                 <div class="card info-card clients-card">
                     <div class="card-body">
                         <h5 class="card-title">Total Clients <span>| This Month</span></h5>
@@ -28,44 +30,27 @@
                                 <i class="bi bi-person"></i>
                             </div>
                             <div class="ps-3">
-                                <h6>350</h6> <!-- Dummy client count -->
-                                <span class="text-success small pt-1 fw-bold">10%</span> <span class="text-muted small pt-2 ps-1">increase</span>
+                                <h6>{{ $userCount }} </h6> <!-- Dummy client count -->
                             </div>
                         </div>
                     </div>
                 </div>
             </div><!-- End Total Clients Card -->
 
-            <!-- Average Service Time Card -->
-            <div class="col-lg-3 col-md-6">
-                <div class="card info-card service-time-card">
-                    <div class="card-body">
-                        <h5 class="card-title">Average Service Time <span>| This Month</span></h5>
-                        <div class="d-flex align-items-center">
-                            <div class="card-icon rounded-circle d-flex align-items-center justify-content-center">
-                                <i class="bi bi-clock"></i>
-                            </div>
-                            <div class="ps-3">
-                                <h6>45 mins</h6> <!-- Dummy average time -->
-                                <span class="text-danger small pt-1 fw-bold">-5%</span> <span class="text-muted small pt-2 ps-1">decrease</span>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div><!-- End Average Service Time Card -->
+          
+            
 
             <!-- Total Revenue Card -->
-            <div class="col-lg-3 col-md-6">
+            <div class="col-lg-4 col-md-6">
                 <div class="card info-card revenue-card">
                     <div class="card-body">
                         <h5 class="card-title">Total Revenue <span>| This Month</span></h5>
                         <div class="d-flex align-items-center">
                             <div class="card-icon rounded-circle d-flex align-items-center justify-content-center">
-                                <i class="bi bi-currency-dollar"></i>
+                                <i class="bi bi-currency-pound"></i>
                             </div>
                             <div class="ps-3">
-                                <h6>$7,500</h6> <!-- Dummy revenue amount -->
-                                <span class="text-success small pt-1 fw-bold">15%</span> <span class="text-muted small pt-2 ps-1">increase</span>
+                                <h6>{{   $totalRevenue }}</h6> <!-- Dummy revenue amount -->
                             </div>
                         </div>
                     </div>
@@ -73,17 +58,16 @@
             </div><!-- End Total Revenue Card -->
 
             <!-- New Bookings Card -->
-            <div class="col-lg-3 col-md-6">
+            <div class="col-lg-4 col-md-6">
                 <div class="card info-card bookings-card">
                     <div class="card-body">
-                        <h5 class="card-title">New Bookings <span>| This Month</span></h5>
+                        <h5 class="card-title">Total Bookings <span>| This Month</span></h5>
                         <div class="d-flex align-items-center">
                             <div class="card-icon rounded-circle d-flex align-items-center justify-content-center">
                                 <i class="bi bi-calendar-plus"></i>
                             </div>
                             <div class="ps-3">
-                                <h6>120</h6> <!-- Dummy number of new bookings -->
-                                <span class="text-success small pt-1 fw-bold">8%</span> <span class="text-muted small pt-2 ps-1">increase</span>
+                                <h6> {{$appointmentCount}} </h6> <!-- Dummy number of new bookings -->
                             </div>
                         </div>
                     </div>
@@ -91,130 +75,142 @@
             </div><!-- End New Bookings Card -->
 
             <!-- Most Active Technicians -->
-            <div class="col-lg-6">
+       <!-- Appointments for Next 2 Days -->
+       <div class="col-lg-12">
                 <div class="card">
                     <div class="card-body">
-                        <h5 class="card-title">Most Active Technicians <span>/ This Month</span></h5>
-                        <!-- Bar Chart -->
-                        <div id="activeTechniciansChart"></div>
-                        <script>
-                            document.addEventListener("DOMContentLoaded", () => {
-                                new ApexCharts(document.querySelector("#activeTechniciansChart"), {
-                                    series: [{
-                                        name: 'Appointments',
-                                        data: [40, 35, 30, 25, 20] // Dummy data
-                                    }],
-                                    chart: {
-                                        height: 350,
-                                        type: 'bar',
-                                        toolbar: { show: false },
-                                    },
-                                    colors: ['#4CAF50'],
-                                    xaxis: {
-                                        categories: ['Sarah Smith', 'Emily Johnson', 'Jessica Lee', 'Nancy Brown', 'Olivia White'] // Dummy technicians
-                                    },
-                                    yaxis: {
-                                        title: { text: 'Number of Appointments' }
-                                    }
-                                }).render();
-                            });
-                        </script>
+                        <h5 class="card-title">Appointments for the Next 2 Days</h5>
+                        @if($upcomingAppointments->isEmpty())
+                            <p>No appointments in the next 2 days.</p>
+                        @else
+                            <div class="table-responsive">
+                                <table class="table table-hover">
+                                    <thead>
+                                        <tr>
+                                            <th scope="col">Date</th>
+                                            <th scope="col">Time</th>
+                                            <th scope="col">Service</th>
+                                            <th scope="col">Customer</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        @foreach($upcomingAppointments as $appointment)
+                                            <tr>
+                                            <td>{{ Carbon::parse($appointment->appointment_date)->format('d F Y') }}</td>
+                                            <td>{{ $appointment->appointment_time->format('g:i A') }}</td>
+                                                <td>{{ $appointment->services->pluck('name')->join(', ') }}</td>
+                                                <td>{{ $appointment->user->name }}</td>
+                                            </tr>
+                                        @endforeach
+                                    </tbody>
+                                </table>
+                            </div>
+                        @endif
                     </div>
                 </div>
-            </div><!-- End Most Active Technicians -->
+            </div><!-- End Appointments for Next 2 Days -->
 
-            <!-- Appointment Trends -->
-            <div class="col-lg-6">
-                <div class="card">
-                    <div class="card-body">
-                        <h5 class="card-title">Appointment Trends <span>/ This Year</span></h5>
-                        <!-- Line Chart -->
-                        <div id="appointmentTrendsChart"></div>
-                        <script>
-                            document.addEventListener("DOMContentLoaded", () => {
-                                new ApexCharts(document.querySelector("#appointmentTrendsChart"), {
-                                    series: [{
-                                        name: 'Appointments',
-                                        data: [150, 180, 200, 170, 190, 220, 250, 270, 240, 260, 290, 310] // Dummy data for each month
-                                    }],
-                                    chart: {
-                                        height: 350,
-                                        type: 'line',
-                                        toolbar: { show: false },
-                                    },
-                                    colors: ['#FF5722'],
-                                    xaxis: {
-                                        categories: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'] // Monthly labels
-                                    },
-                                    yaxis: {
-                                        title: { text: 'Number of Appointments' }
-                                    }
-                                }).render();
-                            });
-                        </script>
-                    </div>
-                </div>
-            </div><!-- End Appointment Trends -->
+   <!-- Appointment Trends -->
+<div class="col-lg-12">
+    <div class="card">
+        <div class="card-body">
+            <h5 class="card-title">Appointment Trends <span>/ This Year</span></h5>
+            <!-- Line Chart -->
+            <div id="appointmentTrendsChart" style="width: 90%;"></div>
+            <script>
+                document.addEventListener("DOMContentLoaded", () => {
+                    const monthlyAppointments = @json($monthlyAppointments); // Pass PHP data to JavaScript
 
-            <!-- Revenue Trends -->
-            <div class="col-lg-6">
-                <div class="card">
-                    <div class="card-body">
-                        <h5 class="card-title">Revenue Trends <span>/ This Year</span></h5>
-                        <!-- Area Chart -->
-                        <div id="revenueTrendsChart"></div>
-                        <script>
-                            document.addEventListener("DOMContentLoaded", () => {
-                                new ApexCharts(document.querySelector("#revenueTrendsChart"), {
-                                    series: [{
-                                        name: 'Revenue',
-                                        data: [500, 600, 700, 650, 750, 800, 900, 950, 850, 900, 1000, 1100] // Dummy revenue data for each month
-                                    }],
-                                    chart: {
-                                        height: 350,
-                                        type: 'area',
-                                        toolbar: { show: false },
-                                    },
-                                    colors: ['#4CAF50'],
-                                    xaxis: {
-                                        categories: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'] // Monthly labels
-                                    },
-                                    yaxis: {
-                                        title: { text: 'Revenue ($)' }
-                                    }
-                                }).render();
-                            });
-                        </script>
-                    </div>
-                </div>
-            </div><!-- End Revenue Trends -->
+                    new ApexCharts(document.querySelector("#appointmentTrendsChart"), {
+                        series: [{
+                            name: 'Appointments',
+                            data: Object.values(monthlyAppointments) // Convert month data to array
+                        }],
+                        chart: {
+                            height: '100%',
+                            type: 'line',
+                            toolbar: { show: false },
+                        },
+                        colors: ['#FF5722'],
+                        xaxis: {
+                            categories: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'] // Monthly labels
+                        },
+                        yaxis: {
+                            title: { text: 'Number of Appointments' }
+                        }
+                    }).render();
+                });
+            </script>
+        </div>
+    </div>
+</div><!-- End Appointment Trends -->
 
-            <!-- Service Popularity -->
-            <div class="col-lg-6">
-                <div class="card">
-                    <div class="card-body">
-                        <h5 class="card-title">Service Popularity <span>/ This Month</span></h5>
-                        <!-- Pie Chart -->
-                        <div id="servicePopularityChart"></div>
-                        <script>
-                            document.addEventListener("DOMContentLoaded", () => {
-                                new ApexCharts(document.querySelector("#servicePopularityChart"), {
-                                    series: [30, 25, 15, 20, 10], // Dummy data for each service
-                                    chart: {
-                                        height: 350,
-                                        type: 'pie',
-                                    },
-                                    colors: ['#FF5722', '#4CAF50', '#FFC107', '#00BCD4', '#9C27B0'],
-                                    labels: ['Manicure', 'Pedicure', 'Nail Art', 'Gel Nails', 'Other'], // Dummy services
-                                    legend: {
-                                        position: 'bottom'
-                                    }
-                                }).render();
-                            });
-                        </script>
-                    </div>
-                </div>
-            </div><!-- End Service Popularity -->
+<!-- Revenue Trends -->
+<div class="col-lg-6">
+    <div class="card">
+        <div class="card-body">
+            <h5 class="card-title">Revenue Trends <span>/ This Year</span></h5>
+            <!-- Area Chart -->
+            <div id="revenueTrendsChart" style="width: 85%;"></div>
+            <script>
+                document.addEventListener("DOMContentLoaded", () => {
+                    const revenues = @json($revenues); // Pass PHP data to JavaScript
+                    const months = @json($monthNames); // Pass PHP data to JavaScript
+
+                    new ApexCharts(document.querySelector("#revenueTrendsChart"), {
+                        series: [{
+                            name: 'Revenue',
+                            data: revenues
+                        }],
+                        chart: {
+                            height: '100%',
+                            type: 'area',
+                            toolbar: { show: false },
+                        },
+                        colors: ['#4CAF50'],
+                        xaxis: {
+                            categories: months // Monthly labels
+                        },
+                        yaxis: {
+                            title: { text: 'Revenue (£)' }
+                        }
+                    }).render();
+                });
+            </script>
+        </div>
+    </div>
+</div><!-- End Revenue Trends -->
+
+<!-- Service Popularity -->
+<div class="col-lg-6">
+    <div class="card">
+        <div class="card-body">
+            <h5 class="card-title">Service Popularity <span>/ This Month</span></h5>
+            <!-- Pie Chart -->
+            <div id="servicePopularityChart" style="width: 100%;"></div>
+            <script>
+                document.addEventListener("DOMContentLoaded", () => {
+                    const serviceNames = @json($serviceNames); // Pass PHP data to JavaScript
+                    const serviceCounts = @json($serviceCounts); // Pass PHP data to JavaScript
+
+                    new ApexCharts(document.querySelector("#servicePopularityChart"), {
+                        series: serviceCounts,
+                        chart: {
+                            height: '100%',
+                            type: 'pie',
+                        },
+                        colors: ['#FF5722', '#4CAF50', '#FFC107', '#00BCD4', '#9C27B0'], // Customize as needed
+                        labels: serviceNames,
+                        legend: {
+                            position: 'bottom'
+                        }
+                    }).render();
+                });
+            </script>
+        </div>
+    </div>
+</div><!-- End Service Popularity -->
+
 
         </div>
     </section>

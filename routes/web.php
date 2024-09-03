@@ -7,10 +7,22 @@ use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\ServiceController;
 use App\Http\Controllers\ClientController;
 use App\Http\Controllers\AppointmentController;
+use App\Http\Controllers\Auth\LogoutController;
 
 Route::get('/', function () {
     return view('auth.login');
 });
+
+
+
+
+use Illuminate\Support\Facades\Auth;
+
+Route::post('/logout', function () {
+    Auth::logout();
+    return redirect('/login');
+})->name('logout');
+
 
 // Custom route for registration
 Route::get('register', function () {

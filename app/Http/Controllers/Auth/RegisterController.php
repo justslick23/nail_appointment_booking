@@ -27,8 +27,10 @@ class RegisterController extends Controller
             'phone' => ['required', 'string', 'max:15'],
             'username' => ['required', 'string', 'max:255', 'unique:users'],
             'password' => ['required', 'string', 'min:8', 'confirmed'],
+            'user_type' => ['required', 'in:admin,customer'], // Add this line
         ]);
     }
+    
 
     protected function create(array $data)
     {
@@ -38,6 +40,8 @@ class RegisterController extends Controller
             'phone_number' => $data['phone'],
             'username' => $data['username'],
             'password' => Hash::make($data['password']),
+            'role' => $data['user_type'], // Add this line
         ]);
     }
+    
 }

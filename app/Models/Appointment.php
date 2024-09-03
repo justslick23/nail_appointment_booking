@@ -10,6 +10,9 @@ class Appointment extends Model
     use HasFactory;
     protected $fillable = ['name', 'email', 'appointment_date', 'appointment_time', 'user_id'];
 
+    protected $casts = [
+        'appointment_time' => 'datetime',
+    ];
     public function scopeAvailableTimes($query, $date)
     {
         $start = \Carbon\Carbon::createFromTime(9, 0);
@@ -34,8 +37,9 @@ class Appointment extends Model
 
     public function services()
     {
-        return $this->belongsToMany(Service::class, 'appointment_service');
+        return $this->belongsToMany(Service::class, 'appointment_service', 'appointment_id', 'service_id');
     }
+    
 
     public function user()
     {

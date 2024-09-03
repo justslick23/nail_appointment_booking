@@ -31,10 +31,24 @@
             <form action="{{ route('appointments.store') }}" method="POST">
                 @csrf
 
-                <div class="form-group mb-3">
-                    <label for="name">Name:</label>
-                    <input type="text" id="name" name="name" class="form-control" value="{{ $user->name }}" required>
-                </div>
+                @if(auth()->user()->role === 'admin')
+    <div class="form-group mb-3">
+        <label for="user_id">Select User:</label>
+        <select id="user_id" name="user_id" class="form-control" required>
+            <option value="">Select a user</option>
+            @foreach($users as $user)
+                <option value="{{ $user->id }}">{{ $user->name }}</option>
+            @endforeach
+        </select>
+    </div>
+@else
+    <div class="form-group mb-3">
+        <label for="name">Name:</label>
+        <input type="text" id="name" name="name" class="form-control" value="{{ auth()->user()->name }}"  readonly>
+        <input type="hidden" name="user_id" value="{{ auth()->user()->id }}">
+    </div>
+@endif
+
 
                 <div class="form-group mb-3">
                     <label for="email">Email:</label>
@@ -43,7 +57,7 @@
 
                 <div class="form-group mb-3">
                     <label for="appointment_date">Appointment Date:</label>
-                    <input type="text" id="appointment_date" name="appointment_date" class="form-control" required>
+                    <input type="date" id="appointment_date" name="appointment_date" class="form-control" required>
                 </div>
 
                 <div class="form-group mb-3">
@@ -127,8 +141,6 @@ $(document).ready(function() {
    
 });
 </script>
-
-
 
 <style>
 .time-block {
